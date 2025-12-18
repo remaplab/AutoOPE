@@ -3,15 +3,13 @@
 ## Installation
 1. First of all, clone this repository, then enter in the repository folder
 
-2. Create the conda environment with all the dependencies needed by bb-ope: 
+2. Create the conda environment with all the dependencies needed: 
     - if cuda-based NVIDIA GPUs are available, run
     ```shell script
-    cd bb-ope
     conda env create -f environment_nvidia.yml
     ```
     - otherwise run the following command (no GPUs support)
     ```shell script
-    cd bb-ope
     conda env create -f environment.yml
     ```
 
@@ -30,7 +28,7 @@
     ```shell script
     mkdir -p real_datasets/cifar10 
     ```
-    Unzip and copy the downloaded dataset in the created directory. Be sure that the data path is **_bb-ope/real_datasets/cifar10/cifar-10-batches-py/_**
+    Unzip and copy the downloaded dataset in the created directory. Be sure that the data path is **_real_datasets/cifar10/cifar-10-batches-py/_**
 
 5. Finally, run the code to generate the data, optimise and train the model, and execute the experiments. 
 
