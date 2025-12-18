@@ -1,7 +1,7 @@
-# AutoOPE: Automated Estimator Selection for Off-Policy Evaluation
+# Automated Off-Policy Estimator Selection via Supervised Learning
 
 ## Installation
-1. First of all, clone this repository, then enter in the repository folder called "bb-ope"
+1. First of all, clone this repository, then enter in the repository folder
 
 2. Create the conda environment with all the dependencies needed by bb-ope: 
     - if cuda-based NVIDIA GPUs are available, run
