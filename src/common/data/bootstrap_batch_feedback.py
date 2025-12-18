@@ -1,0 +1,95 @@
+# Copyright (c) 2023 Sony Group Corporation and Hanjuku-kaso Co., Ltd. All Rights Reserved.
+#
+# This software is released under the MIT License.
+
+import copy
+from math import ceil
+
+import numpy as np
+from sklearn.utils import check_random_state
+
+
+def sample_bootstrap_batch_bandit_feedback(
+        batch_bandit_feedback,
+        action_dist=None,
+        sample_size_ratio=1.0,
+        random_state=None
+):
+    """
+    Get bootstrapped batch bandit feedback
+
+    Args:
+        batch_bandit_feedback (dict): batch bandit feedback
+        action_dist (np.array): action distribution for batch_bandit_feedback by other policy
+        sample_size_ratio (float, optional): Defaults to 1.0. The ratio of the sample size of the sampled data to that
+        of the original data
+        random_state (int, optional): Defaults to None.
+
+    Returns:
+        dict: bootstrapped batch bandit feedback
+    """
+
+    bootstrapped_data = copy.deepcopy(batch_bandit_feedback)
+    bootstrapped_data['n_rounds'] = int(batch_bandit_feedback['n_rounds'] * sample_size_ratio)
+
+    bootstrap_idx = check_random_state(random_state).choice(np.arange(batch_bandit_feedback['n_rounds']),
+                                                            size=bootstrapped_data['n_rounds'], replace=True)
+    for key_name in ['context', 'action', 'position', 'reward', 'expected_reward', 'pi_b', 'pscore']:
+        if not (key_name in list(batch_bandit_feedback.keys())):
+            pass
+        elif batch_bandit_feedback[key_name] is None:
+            pass
+        else:
+            bootstrapped_data[key_name] = batch_bandit_feedback[key_name][bootstrap_idx]
+
+    bootstrapped_action_dist = None
+    if not (action_dist is None):
+        bootstrapped_action_dist = action_dist.copy()[bootstrap_idx]
+
+    return bootstrapped_data, bootstrapped_action_dist
+
+
+def subsample_batch_bandit_feedback(
+        batch_bandit_feedback,
+        action_dist=None,
+        sample_size_ratio=1.0,
+        random_state=None
+):
+    """
+    Get a subsample of batch bandit feedback
+
+    Args:
+        batch_bandit_feedback (dict): batch bandit feedback
+        action_dist (np.array): action distribution for batch_bandit_feedback by other policy
+        sample_size_ratio (float, optional): Defaults to 1.0. The ratio of the sample size of the sampled data to that
+        of the original data
+        random_state (int, optional): Defaults to None.
+
+    Returns:
+        dict: bootstrapped batch bandit feedback
+    """
+    if sample_size_ratio >= 1.0:
+        return batch_bandit_feedback, action_dist
+
+    bootstrapped_data = copy.deepcopy(batch_bandit_feedback)
+    bootstrapped_data['n_rounds'] = ceil(batch_bandit_feedback['n_rounds'] * sample_size_ratio)
+
+    from sklearn.model_selection import train_test_split
+    _, bootstrap_idx = train_test_split(np.arange(batch_bandit_feedback['n_rounds']),
+                                        test_size=sample_size_ratio,
+                                        random_state=random_state,
+                                        stratify=batch_bandit_feedback['reward'])
+
+    for key_name in ['context', 'action', 'position', 'reward', 'expected_reward', 'pi_b', 'pscore']:
+        if not (key_name in list(batch_bandit_feedback.keys())):
+            pass
+        elif batch_bandit_feedback[key_name] is None:
+            pass
+        else:
+            bootstrapped_data[key_name] = batch_bandit_feedback[key_name][bootstrap_idx]
+
+    bootstrapped_action_dist = None
+    if not (action_dist is None):
+        bootstrapped_action_dist = action_dist.copy()[bootstrap_idx]
+
+    return bootstrapped_data, bootstrapped_action_dist
